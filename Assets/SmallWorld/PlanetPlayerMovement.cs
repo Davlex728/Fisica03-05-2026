@@ -6,6 +6,8 @@ public class PlanetPlayerMovement : MonoBehaviour
 {
     [SerializeField] private Transform planet;
     [SerializeField] private float moveSpeed = 6f;
+    [SerializeField] private float jumpForce = 5f;
+    [SerializeField] private float groundCheckDistance = 0.6f;
 
     private Rigidbody rb;
     private Vector2 moveInput;
@@ -18,6 +20,22 @@ public class PlanetPlayerMovement : MonoBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
+    }
+
+    public void OnJump(InputAction.CallbackContext context)
+    {
+        if (context.performed && IsGrounded())
+        {
+            Vector3 gravityUp = (transform.position - planet.position).normalized;
+            rb.AddForce(gravityUp * jumpForce, ForceMode.VelocityChange);
+        }
+    }
+
+    private bool IsGrounded()
+    {
+        Vector3 gravityUp = (transform.position - planet.position).normalized;
+        // Raycast hacia el centro del planeta para comprobar si estamos tocando el suelo
+        return Physics.Raycast(transform.position, -gravityUp, groundCheckDistance);
     }
 
     private void FixedUpdate()
